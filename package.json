@@ -1,0 +1,14 @@
+{
+  "name": "licensesmith-free",
+  "version": "1.1.0",
+  "private": true,
+  "description": "LicenseSmith LS1 key format spec, fixed test vectors, and the free single-file TypeScript verifier (MIT).",
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm -r test"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

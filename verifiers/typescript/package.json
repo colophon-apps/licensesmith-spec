@@ -1,0 +1,33 @@
+{
+  "name": "@licensesmith/verifier",
+  "version": "1.1.0",
+  "description": "Single-file offline license verifier for the LicenseSmith LS1 key format (Ed25519). Copy licensesmith.ts into your app.",
+  "license": "MIT",
+  "keywords": [
+    "license-key",
+    "license-verification",
+    "software-licensing",
+    "ed25519",
+    "digital-signature",
+    "offline",
+    "offline-first",
+    "cryptography",
+    "indie-dev"
+  ],
+  "type": "module",
+  "main": "./dist/licensesmith.js",
+  "types": "./dist/licensesmith.d.ts",
+  "files": ["licensesmith.ts", "dist", "README.md", "LICENSE"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@noble/ed25519": "3.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1",
+    "typescript": "^5.9.0",
+    "vitest": "^5.0.0"
+  }
+}
