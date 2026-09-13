@@ -115,7 +115,7 @@ What's in the full kit:
 One-time purchase, no subscription:
 
 - Gumroad (international, USD) — **$29**: **[Gumroad URL]** (coming soon)
-- BOOTH (Japan, JPY) — **¥4,500**: **[BOOTH URL]** (coming soon)
+- BOOTH (Japan, JPY) — **¥4,500**: https://colophon.booth.pm/items/8836509
 
 ## License
 
