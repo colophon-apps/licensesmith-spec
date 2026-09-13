@@ -72,9 +72,10 @@ spec instead of trusting it.
 
 This package **verifies** licenses; it does not issue them. Issuing (keypair generation, signing,
 batch-issuing from a sales CSV, an issuance ledger and revocation) is part of the full LicenseSmith
-kit, together with Python, Rust and C# verifiers of the same format and a commercial license for use in
-your own products. It is a one-time purchase — see the LicenseSmith product pages linked from the
-repository README.
+kit, together with Python and Rust verifiers of the same format and a commercial license for use in
+your own products. (A C# verifier of the same format is also free and MIT-licensed — see
+[`verifiers/csharp/`](../csharp).) It is a one-time purchase — see the LicenseSmith product pages linked
+from the repository README.
 
 ## License
 

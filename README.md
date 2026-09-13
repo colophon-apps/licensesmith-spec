@@ -3,11 +3,11 @@
 **Offline license-key verification for indie software.** Ed25519 signatures checked inside your app —
 no server, no account, no per-check latency or bill. Version 1.1.0.
 
-This is LicenseSmith's published key-format spec and TypeScript reference implementation, under the MIT
-License: the frozen key-format spec, the fixed test vectors, the complete single-file TypeScript
-verifier, and the full threat model.
+This is LicenseSmith's published key-format spec and TypeScript and C# reference implementations, under
+the MIT License: the frozen key-format spec, the fixed test vectors, the complete single-file TypeScript
+and C# verifiers, and the full threat model.
 
-Issuing licenses is a separate, one-time-purchase kit — the issuing CLI, C#/Python/Rust verifiers of the
+Issuing licenses is a separate, one-time-purchase kit — the issuing CLI, Python/Rust verifiers of the
 same format, the issuance ledger and revocation tooling, and Japanese-language documentation — sold on
 BOOTH; see [the full kit](#the-full-kit).
 
@@ -52,6 +52,8 @@ signing a real license is the issuing side of LicenseSmith, and it isn't in this
 | [`spec/threat-model.md`](spec/threat-model.md) | What the scheme prevents (P1–P4) and what it does not (N1–N5) — binary patching, key sharing, a leaked private key, public-key substitution, a rewound clock — each with its mitigation and the limit of that mitigation. English and Japanese. The same file the paid kit ships. |
 | [`verifiers/typescript/licensesmith.ts`](verifiers/typescript/licensesmith.ts) | The complete verifier. One file, one dependency (`@noble/ed25519`). Copy it into your project, or `npm i @licensesmith/verifier` — see [`verifiers/typescript/README.md`](verifiers/typescript/README.md). |
 | `verifiers/typescript/{licensesmith.test.ts, verify-cli.ts, package.json, tsconfig.json, LICENSE}` | The verifier's own test suite, a CLI wrapper, and its npm package metadata. |
+| [`verifiers/csharp/LicenseSmith.cs`](verifiers/csharp/LicenseSmith.cs) | The complete verifier. One file, one dependency (`BouncyCastle.Cryptography`). Copy it into your project — see [`verifiers/csharp/README.md`](verifiers/csharp/README.md). Also the file to drop into Unity. |
+| `verifiers/csharp/{LicenseSmith.csproj, tests/, examples/VerifyCli/}` | The verifier's own test suite (`dotnet test`, xUnit) and an example CLI wrapper. |
 
 ## Using the verifier
 
@@ -75,6 +77,14 @@ else showError(result.reason);
 `verifyLicense` never throws for a bad license — it returns `{ ok: false, reason }` with one of six
 codes: `malformed`, `unsupported_version`, `bad_signature`, `product_mismatch`, `expired`, `revoked`.
 Decision order is normative — see [`spec/key-format.md`](spec/key-format.md).
+
+## Try the C# verifier in Unity
+
+Drop [`verifiers/csharp/LicenseSmith.cs`](verifiers/csharp/LicenseSmith.cs) and BouncyCastle's
+`netstandard2.0` DLL into your project's `Assets/` folder (API Compatibility Level ".NET Standard 2.1"),
+then call `LicenseVerifier.VerifyLicense(...)` with the public key and one signed license from
+[`spec/testvectors.json`](spec/testvectors.json) — see [`verifiers/csharp/README.md`](verifiers/csharp/README.md)
+for the exact call.
 
 ## What it doesn't do
 
@@ -106,7 +116,7 @@ What's in the full kit:
 
 - The issuing CLI — 7 subcommands, including `keygen`, batch-issuing from a sales CSV, and
   `ledger export-revocations`
-- Python, Rust and C# verifiers of the same `LS1` format
+- Python and Rust verifiers of the same `LS1` format
 - The issuance ledger and revocation tooling
 - Sample data and example programs
 - A commercial EULA for use in your own paid product
@@ -119,9 +129,9 @@ One-time purchase, no subscription:
 ## License
 
 MIT, for this repository only — all of `spec/` (the key-format spec, the test vectors and the threat
-model) and all of `verifiers/typescript/`; see [`LICENSE`](LICENSE). The rest of the LicenseSmith
-kit — the issuing CLI, the Python/Rust/C# verifiers, the ledger and revocation tooling, the sample
-data and example programs — is under a separate commercial license.
+model) and all of `verifiers/typescript/` and `verifiers/csharp/`; see [`LICENSE`](LICENSE). The rest of
+the LicenseSmith kit — the issuing CLI, the Python/Rust verifiers, the ledger and revocation tooling, the
+sample data and example programs — is under a separate commercial license.
 
 ## Security
 

@@ -1,8 +1,8 @@
 # Security policy
 
-Covers this repository: the `LS1` key-format spec, the test vectors, and the TypeScript verifier
-(version 1.1.0). The same crypto scheme underlies the paid kit's Python/Rust/C# verifiers and issuing
-CLI, so a report here may apply to those too.
+Covers this repository: the `LS1` key-format spec, the test vectors, and the TypeScript and C# verifiers
+(version 1.1.0). The same crypto scheme underlies the paid kit's Python/Rust verifiers and issuing CLI,
+so a report here may apply to those too.
 
 ## Reporting a vulnerability
 

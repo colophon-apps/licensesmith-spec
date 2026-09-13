@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    LicenseSmith C# verifier as a class library.
+    You do not need this project to use the verifier: copy LicenseSmith.cs into your own project
+    and add the BouncyCastle.Cryptography package. This csproj exists so this repository can build and
+    test the file, and so you can reference it as a project if you prefer.
+  -->
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.1;net8.0</TargetFrameworks>
+    <Version>1.1.0</Version>
+    <Nullable>disable</Nullable>
+    <RootNamespace>LicenseSmith</RootNamespace>
+    <AssemblyName>LicenseSmith</AssemblyName>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <!--
+    The netstandard2.1 build doubles as the Unity compatibility check: C# 7.3 (the oldest language version
+    the file supports - Unity 2021.3 LTS compiles at C# 9, releases before 2020.2 at 7.3) and none of the
+    SDK's implicit target-framework symbols, which Unity does not define either - so the guarded
+    `#nullable disable` at the top of LicenseSmith.cs stays inactive here, exactly as it does in Unity.
+    The net8.0 build uses the SDK's default language version.
+  -->
+  <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+    <LangVersion>7.3</LangVersion>
+    <DisableImplicitFrameworkDefines>true</DisableImplicitFrameworkDefines>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="LicenseSmith.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.7.0" />
+  </ItemGroup>
+</Project>
