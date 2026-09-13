@@ -1,0 +1,200 @@
+================================================================================
+ LicenseSmith 1.1.0 無料公開分 -- はじめにお読みください
+================================================================================
+
+(English) Japanese entry point for the free, MIT-licensed part of LicenseSmith.
+The full description is README.md.
+
+この ZIP は LicenseSmith の無料公開分です。GitHub の公開リポジトリ
+https://github.com/colophon-apps/licensesmith-spec と同じファイルに、この日本語の
+案内 1 枚を足したものです。ライセンスは MIT で、無料・商用利用可です。
+
+買い切りソフトのライセンスキーを、サーバーなしでアプリの中だけで確かめる仕組みの
+「認証する側」が入っています。キーを発行する側（鍵の作成・発行ツール）は有料版に
+あります（7 節）。
+
+
+--- 0. どのファイルを開けばよいか ----------------------------------------------
+
+  C# / Unity のアプリにキー認証を入れる       → verifiers/csharp/LicenseSmith.cs（3 節）
+  TypeScript / JavaScript のアプリに入れる    → verifiers/typescript/licensesmith.ts（4 節）
+  自分の実装や動作を確かめる                  → spec/testvectors.json（5 節）
+  キーの形式を知る                            → spec/key-format.md（英語。末尾に日本語要約）
+  何を防げて何を防げないか                    → spec/threat-model.md（英語と日本語）
+  使ってよい範囲                              → LICENSE（MIT。要点は 6 節）
+  有料版に何があるか                          → 7 節
+  全体の説明（英語）                          → README.md
+
+
+--- 1. これは何か --------------------------------------------------------------
+
+ライセンスキーは Ed25519 の電子署名つきの文字列です。アプリは公開鍵だけを持ち、
+貼られたキーが「あなたの秘密鍵で発行されたものか」を端末の中で判定します。
+外部への通信はありません。
+
+  この ZIP に入っているもの
+    * キーフォーマット LS1 の仕様書（spec/key-format.md）
+    * 確認用のサンプルデータ 38 件（受理 6・拒否 32）と、テスト専用の鍵ペア
+      （spec/testvectors.json）
+    * C# の認証用コード 1 ファイル（787 行）と、そのテスト・実行例（verifiers/csharp/）
+    * TypeScript の認証用コード 1 ファイルと、そのテスト・実行例（verifiers/typescript/）
+    * 脅威モデル。防げること 4 項目と防げないこと 5 項目、それぞれの緩和策と限界
+      （spec/threat-model.md）
+
+  この ZIP に入っていないもの
+    * 鍵ペアを作ってキーを発行するツール。この ZIP だけでは、あなたの製品用のキーは
+      作れません。仕様書は公開なので、自分で発行スクリプトを書くことはできます。
+      発行ツールとその周辺（台帳・失効・一括発行）は有料版にあります（7 節）。
+
+  --- 先に知っておいてください ---------------------------
+    署名で分かるのは「そのキーを秘密鍵の持ち主が発行したか」だけです。
+    アプリ自体の改造や、正規購入者がキーを他人に渡すことは対象外です。
+    全文は spec/threat-model.md にあります。お客様に説明する前、宣伝文を書く前に
+    読んでください。
+  --------------------------------------------------------
+
+
+--- 2. 必要なもの --------------------------------------------------------------
+
+  読むだけ                   何も要りません
+  C# を Unity に入れる       Unity 2021.3 以上と、BouncyCastle.Cryptography の DLL（3 節）
+  C# のテストを動かす        .NET SDK 8 以上（https://dotnet.microsoft.com/download ）
+  TypeScript のテストを動かす Node.js 22.12 以上と pnpm（4 節）。
+                             この下限はテスト実行ツール（vitest）のもので、
+                             認証用コード自体は Node.js 20 以上で動きます。
+
+
+--- 3. C# / Unity に入れる -----------------------------------------------------
+
+  (1) verifiers/csharp/LicenseSmith.cs を Assets/ の下にコピーします。
+  (2) BouncyCastle.Cryptography（NuGet、MIT）の lib/netstandard2.0/BouncyCastle.Cryptography.dll
+      を Assets/Plugins/ に置きます。
+      入手先: https://www.nuget.org/packages/BouncyCastle.Cryptography の「Download package」
+      でダウンロードした .nupkg を、拡張子を .zip に変えて展開すると中にあります。
+  (3) Player Settings の API Compatibility Level を「.NET Standard 2.1」にします。
+  (4) 呼び出しは 4 行です。
+
+        using LicenseSmith;
+        var result = LicenseVerifier.VerifyLicense(text, PUBLIC_KEY, new VerifyOptions { ProductId = "my-app" });
+        if (result.Ok) UnlockFeatures(result.Payload.Feat);
+        else ShowError(result.ReasonCode);
+
+      まず動かして見るなら、PUBLIC_KEY と text に 5 節のテスト用の値を入れてください。
+      ReasonCode は malformed / unsupported_version / bad_signature / product_mismatch /
+      expired / revoked の 6 種類で、正しくないキーで例外は出ません。
+
+  .NET のコンソール・WPF・WinForms でも同じ 1 ファイルです。プロジェクトで
+  dotnet add package BouncyCastle.Cryptography を実行してから LicenseSmith.cs を足します。
+
+  同梱テストの実行:  dotnet test verifiers/csharp/tests
+  （初回は NuGet からパッケージを取得するので、インターネット接続が要ります）
+
+
+--- 4. TypeScript / JavaScript に入れる ----------------------------------------
+
+  verifiers/typescript/licensesmith.ts を自分のプロジェクトにコピーし、
+  パッケージ @noble/ed25519 を追加します。呼び出しは次のとおりです。
+
+        import { verifyLicense } from "./licensesmith";
+        const result = await verifyLicense(userPastedText, PUBLIC_KEY, { productId: "my-app" });
+        if (result.ok) unlock(result.payload.feat);
+        else showError(result.reason);
+
+  同梱テストの実行（この ZIP を展開したフォルダで）:
+
+        npm install -g pnpm        （pnpm が入っていないときだけ）
+        pnpm install
+        pnpm build
+        pnpm test
+
+  pnpm install は node_modules/ を作ります。この ZIP には入れていないので、
+  展開後に 1 回だけ実行してください。
+
+
+--- 5. サンプルデータで自己検証する --------------------------------------------
+
+  spec/testvectors.json には、テスト専用の鍵ペアと、署名済みのキー 38 本が入って
+  います。同梱の C# と TypeScript のテストはこの 38 本を全件通しています。自分で書いた
+  認証コードも、この 38 本で同じ結果になれば仕様どおりです。
+
+    公開鍵（テスト専用）  nl0U9R690IJl7QdRkzRnK7l5YB1oNjx-CJPLBEw9wh4
+    キーの例              id が "valid-perpetual" の license の値（LS1. で始まる文字列）
+    条件                  製品 ID demo-app、時刻 1767225600 → 結果は ok: true
+
+  コマンドで確かめる（4 節の pnpm build のあと、展開したフォルダで。KEY は上の
+  キーの例に置き換えます）:
+
+    PowerShell:
+        "KEY" | node verifiers/typescript/dist/verify-cli.js --pub nl0U9R690IJl7QdRkzRnK7l5YB1oNjx-CJPLBEw9wh4 --license - --product demo-app --now 1767225600
+    bash:
+        printf '%s' "KEY" | node verifiers/typescript/dist/verify-cli.js --pub nl0U9R690IJl7QdRkzRnK7l5YB1oNjx-CJPLBEw9wh4 --license - --product demo-app --now 1767225600
+    C#（.NET SDK が必要）:
+        "KEY" | dotnet run --project verifiers/csharp/examples/VerifyCli -- --pub nl0U9R690IJl7QdRkzRnK7l5YB1oNjx-CJPLBEw9wh4 --license - --product demo-app --now 1767225600
+
+  {"ok":true, ... } が出れば成功です。--product を other-app に変えると
+  {"ok":false,"reason":"product_mismatch"} になります。
+
+  この鍵ペアの秘密鍵（seedB64Url）は公開情報です。テスト以外には使わないで
+  ください。あなたの製品用の鍵ペアは、必ず新しく作ります。
+
+
+--- 6. ライセンス（MIT）の要点 -------------------------------------------------
+
+  * 無料です。商用製品に組み込めます。改変も再配布もできます。
+  * 条件は 1 つで、著作権表示と許諾文（LICENSE の全文、または各ファイル先頭の
+    SPDX 行と Copyright 行）を残すことです。
+  * 無保証です。
+  * 正文は LICENSE（英語）です。この節は要約で、食い違う場合は正文が優先します。
+
+
+--- 7. 有料版にあるもの --------------------------------------------------------
+
+  有料版「Unity / C# ライセンスキー実装キット｜LicenseSmith」には、この ZIP の
+  認証用コード・仕様書・サンプルデータ・脅威モデルに加えて次が入っています。
+
+    * 発行ツール（Node.js 20 以上）。鍵の作成、公開鍵の表示、発行、CSV 一括発行、
+      認証、台帳、失効の 7 コマンド
+    * Python と Rust の認証用コード（同じ LS1 形式）
+    * 発行の台帳と、返金・流出時の失効リスト
+    * 日本語の手引き（はじめに読む案内、Unity への組み込み、CSV 一括発行）
+    * 商用ライセンス（英語正文・日本語訳）と、動作確認の実測記録
+
+  価格は ¥4,500（BOOTH）/ $29（Gumroad）、買い切りです。
+    BOOTH:    https://colophon.booth.pm/items/8836509
+    Gumroad:  https://colophonapps.gumroad.com/l/licensesmith
+
+  有料版の中の C# と TypeScript の認証用コードも、この ZIP と同じ MIT です。
+
+
+--- 8. 問い合わせ --------------------------------------------------------------
+
+  * BOOTH で入手した方は、BOOTH の取引メッセージからご連絡ください。返答の目安は
+    2 営業日以内です。範囲は同梱物の不具合と、この案内・README の手順についてです。
+  * 脆弱性の報告は colophon.apps@gmail.com へ（詳細は SECURITY.md）。
+  * ファイルの最新版は https://github.com/colophon-apps/licensesmith-spec にあります。
+
+
+--- 付録: この ZIP に入っているもの --------------------------------------------
+
+  00-START-HERE.ja.txt                       この案内
+  README.md                                  全体の説明（英語）
+  LICENSE                                    MIT ライセンスの正文
+  SECURITY.md                                脆弱性の報告先
+  spec/key-format.md                         キーフォーマット LS1 の仕様書
+  spec/testvectors.json                      確認用のサンプルデータ 38 件
+  spec/threat-model.md                       脅威モデル（英語と日本語）
+  verifiers/csharp/LicenseSmith.cs           C# の認証用コード（これをコピーする）
+  verifiers/csharp/README.md                 C# の説明（英語）
+  verifiers/csharp/LicenseSmith.csproj       C# をライブラリとしてビルドする設定
+  verifiers/csharp/tests/                    C# のテスト（dotnet test）
+  verifiers/csharp/examples/VerifyCli/       C# の実行例（コマンドライン）
+  verifiers/typescript/licensesmith.ts       TypeScript の認証用コード（これをコピーする）
+  verifiers/typescript/README.md             TypeScript の説明（英語）
+  verifiers/typescript/licensesmith.test.ts  TypeScript のテスト（pnpm test）
+  verifiers/typescript/verify-cli.ts         TypeScript の実行例（コマンドライン）
+  verifiers/typescript/package.json ほか     ビルド設定
+  package.json / pnpm-lock.yaml /
+    pnpm-workspace.yaml                      pnpm 用の設定（読まなくてよい）
+  .gitignore / .github/                      GitHub 用の設定（読まなくてよい）
+
+================================================================================
