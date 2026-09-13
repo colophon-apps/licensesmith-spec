@@ -9,7 +9,7 @@ verifier, and the full threat model.
 
 Issuing licenses is a separate, one-time-purchase kit — the issuing CLI, C#/Python/Rust verifiers of the
 same format, the issuance ledger and revocation tooling, and Japanese-language documentation — sold on
-BOOTH and Gumroad; see [the full kit](#the-full-kit).
+BOOTH; see [the full kit](#the-full-kit).
 
 ```
 pnpm install && pnpm test
@@ -114,7 +114,6 @@ What's in the full kit:
 
 One-time purchase, no subscription:
 
-- Gumroad (international, USD) — **$29**: **[Gumroad URL]** (coming soon)
 - BOOTH (Japan, JPY) — **¥4,500**: https://colophon.booth.pm/items/8836509
 
 ## License
