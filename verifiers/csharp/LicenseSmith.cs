@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 // Copyright (c) 2026 Colophon. Licensed under the MIT License — see LICENSE at the repository root.
 
 // This file is nullable-oblivious (C# 7.3 style, no annotations). The directive below keeps it
