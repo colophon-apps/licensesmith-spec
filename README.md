@@ -127,6 +127,8 @@ One-time purchase, no subscription:
 - Gumroad (international, USD) — **$29**: https://colophonapps.gumroad.com/l/licensesmith
 - BOOTH (Japan, JPY) — **¥4,500**: https://colophon.booth.pm/items/8836509
 
+This repository is also distributed as a ZIP on BOOTH, free of charge: https://colophon.booth.pm/items/8843410
+
 ## License
 
 MIT, for this repository only — all of `spec/` (the key-format spec, the test vectors and the threat
